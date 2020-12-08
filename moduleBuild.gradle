@@ -1,0 +1,66 @@
+ext {    // 构建相关
+    def buildToolsVer = "29.0.3"
+    def androidMinSdkVer = 21
+    def androidTargetSdkVer = 29
+    def androidCompileSdkVer = 29
+    domesticDebugApkFile = ""
+    domesticReleaseApkFile = ""
+    overseasDebugApkFile = ""
+    overseasReleaseApkFile = ""
+    // 基础层构建配置
+    gradle_base_lib = {
+        projectImp, kotlin = false, version_code = 1, version_name = "1.0", androidPlugin = 'com.android.library' ->
+            gradle_build_base(projectImp, kotlin, version_code, version_name, androidPlugin)
+            projectImp.dependencies {
+                // 全局依赖处理
+                projectImp.android.buildTypes.each {
+                    buildType ->
+                        "${buildType.name}Implementation" fileTree(dir: "${rootProject.projectDir.path}/libs/${buildType.name}", include: ['*.jar', '*.aar'])
+                }
+
+            }
+    }
+
+    // 基础的构建配置
+    gradle_build_base = {
+        projectImp, kotlin = false, version_code = 1, version_name = "1.0", androidPlugin = 'com.android.library' ->
+            println("=============>project:${projectImp.name} start<================")
+            projectImp.apply {
+                plugin androidPlugin
+                if (kotlin) {
+                    plugin 'kotlin-android'
+                }
+            }
+
+            projectImp.android {
+                buildToolsVersion buildToolsVer
+                compileSdkVersion androidCompileSdkVer
+                defaultConfig {
+                    minSdkVersion androidMinSdkVer
+                    targetSdkVersion androidTargetSdkVer
+                    versionCode version_code
+                    versionName version_name
+                    multiDexEnabled true
+                    sourceSets {
+                        main {
+                            jniLibs.srcDirs = [projectImp.getProjectDir().toString() + '/libs']
+                        }
+                    }
+                    consumerProguardFiles projectImp.getProjectDir().toString() + '/proguard-rules.pro'
+                }
+
+                compileOptions {
+                    targetCompatibility JavaVersion.VERSION_1_8
+                    sourceCompatibility JavaVersion.VERSION_1_8
+                }
+            }
+
+            projectImp.dependencies {
+                api fileTree(dir: projectImp.getProjectDir().toString() + '/libs', include: ['*.jar', '*.aar'])
+                // 可配置是否支持kotlin
+                if (kotlin) {
+                    implementation sdk_kotlin
+                }
+            }
+    }
+}

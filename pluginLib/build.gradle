@@ -1,0 +1,5 @@
+gradle_base_lib this
+
+dependencies {
+    implementation 'androidx.appcompat:appcompat:1.0.0'
+}

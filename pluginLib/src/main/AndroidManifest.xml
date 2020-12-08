@@ -1,0 +1,7 @@
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+	package="com.niu.lib.plugin">
+
+	<application>
+		<activity android:name=".ProxyActivity" />
+	</application>
+</manifest>
